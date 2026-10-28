@@ -3,1064 +3,1065 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>International Student Recruitment CRM</title>
+    <title>CEA LINK - Cloud Realtime CRM & Pricing System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- SheetJS for Excel Import/Export -->
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col md:flex-row font-sans">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
 
-    <!-- SIDEBAR NAVIGATION (Matching image design) -->
-    <aside class="w-full md:w-64 bg-[#0d121d] text-slate-300 flex-shrink-0 flex flex-col justify-between border-r border-slate-800/60 select-none">
-        <div>
-            <!-- Logo & Brand Header -->
-            <div class="p-5 flex items-center gap-3 border-b border-slate-800/80">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                </div>
+    <!-- Header Navigation -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-plane-departure text-2xl text-amber-400"></i>
                 <div>
-                    <h1 class="font-bold text-white text-base leading-tight tracking-tight">EduRecruit CRM</h1>
-                    <p class="text-xs text-slate-400 font-medium">Агентлагийн удирдлага</p>
+                    <h1 class="text-xl font-bold tracking-wide flex items-center">
+                        CEA LINK 
+                        <span id="cloud-badge" class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded font-semibold ml-2">Local Mode</span>
+                    </h1>
                 </div>
             </div>
-
-            <!-- Navigation Links -->
-            <nav class="p-3 space-y-1.5 mt-2">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
-                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
-                    <span>Хянаж ажиллах</span>
-                </button>
-
-                <button onclick="switchTab('leads')" id="nav-leads" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:bg-slate-800/80 hover:text-white text-slate-400">
-                    <i data-lucide="users" class="w-5 h-5"></i>
-                    <span>Сэжим & Сурагчид</span>
-                    <span id="badge-leads-count" class="ml-auto bg-slate-800 text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-bold">4</span>
-                </button>
-
-                <button onclick="switchTab('partners')" id="nav-partners" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:bg-slate-800/80 hover:text-white text-slate-400">
-                    <i data-lucide="building-2" class="w-5 h-5"></i>
-                    <span>Сургууль & Хамтрагчид</span>
-                </button>
-
-                <button onclick="switchTab('deals')" id="nav-deals" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:bg-slate-800/80 hover:text-white text-slate-400">
-                    <i data-lucide="badge-dollar-sign" class="w-5 h-5"></i>
-                    <span>Хэлцэл & Орлого</span>
-                </button>
-
-                <button onclick="switchTab('tasks')" id="nav-tasks" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:bg-slate-800/80 hover:text-white text-slate-400">
-                    <i data-lucide="check-square" class="w-5 h-5"></i>
-                    <span>Даалгаврууд</span>
-                    <span id="badge-tasks-count" class="ml-auto bg-rose-500/20 text-rose-400 text-xs px-2.5 py-0.5 rounded-full font-bold">2</span>
-                </button>
-            </nav>
-        </div>
-
-        <!-- Sidebar Actions & Export/Import -->
-        <div class="p-4 border-t border-slate-800/80 space-y-2">
-            <button onclick="openLeadModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-indigo-600/20 transition">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                <span>Шинэ сэжим нэмэх</span>
-            </button>
             
-            <div class="pt-2 grid grid-cols-2 gap-2">
-                <button onclick="triggerExcelImport()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition" title="Excel файл оруулах">
-                    <i data-lucide="upload" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    <span>Excel Импорт</span>
-                </button>
-                <button onclick="exportToExcel()" class="w-full bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-medium py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition border border-emerald-800/50" title="Excel татах">
-                    <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
-                    <span>Excel Татах</span>
+            <div class="flex items-center gap-2">
+                <nav class="flex flex-wrap space-x-1 bg-indigo-950 p-1 rounded-lg text-xs font-semibold">
+                    <button onclick="switchTab('calc')" id="tab-calc" class="px-3 py-1.5 rounded bg-indigo-600 text-white shadow">Тооцоолуур</button>
+                    <button onclick="switchTab('all-pnl')" id="tab-all-pnl" class="px-3 py-1.5 rounded text-slate-300 hover:text-white">📊 Нийт P&L</button>
+                    <button onclick="switchTab('schools')" id="tab-schools" class="px-3 py-1.5 rounded text-amber-300 hover:text-white font-bold">🏫 Сургуулиуд (B2B CRM)</button>
+                    <button onclick="switchTab('crm-full')" id="tab-crm-full" class="px-3 py-1.5 rounded text-slate-300 hover:text-white">🎓 Сурагчид (Leads & Deals)</button>
+                    <button onclick="switchTab('compare')" id="tab-compare" class="px-3 py-1.5 rounded text-slate-300 hover:text-white">Харьцуулах</button>
+                    <button onclick="switchTab('quote')" id="tab-quote" class="px-3 py-1.5 rounded text-slate-300 hover:text-white">Үнийн Санал</button>
+                    <button onclick="switchTab('db')" id="tab-db" class="px-3 py-1.5 rounded text-slate-300 hover:text-white flex items-center gap-1">Бааз <span id="db-count" class="bg-amber-400 text-slate-950 px-1.5 rounded-full text-[10px]">6</span></button>
+                </nav>
+                <button onclick="openCloudModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-black shadow flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-cloud"></i> ☁️ Cloud Холбох
                 </button>
             </div>
-            <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="hidden" onchange="handleExcelImport(event)">
         </div>
-    </aside>
+    </header>
 
-    <!-- MAIN APP CONTENT AREA -->
-    <main class="flex-1 overflow-y-auto min-h-screen flex flex-col bg-slate-50">
-        <!-- Top App Header -->
-        <header class="bg-white border-b border-slate-200/80 px-8 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
-            <div>
-                <h2 id="page-title" class="text-xl font-bold text-slate-900 tracking-tight">Хянаж ажиллах</h2>
-            </div>
+    <main class="max-w-7xl mx-auto px-4 py-6">
 
-            <!-- Top Actions & User Profile -->
-            <div class="flex items-center gap-4">
-                <div class="hidden sm:flex items-center gap-2">
-                    <button onclick="exportToExcel()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                        <span>.XLSX Татах</span>
-                    </button>
-                    <button onclick="exportJSONBackup()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-                        <i data-lucide="database" class="w-4 h-4"></i>
-                        <span>JSON Backup</span>
-                    </button>
-                </div>
-
-                <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
-
-                <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-xs font-bold text-slate-800">Боловсролын Агентлаг</p>
-                        <p class="text-[11px] font-medium text-slate-500">Эрх: Администратор</p>
+        <!-- TAB 1: CALCULATOR -->
+        <section id="sec-calc" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 space-y-4">
+                    <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex justify-between items-center">
+                        <span><i class="fa-solid fa-sliders text-indigo-600 mr-2"></i> Тохиргоо ба Оролт</span>
+                        <button onclick="resetCalculator()" class="text-xs text-indigo-600 hover:underline">Сэргээх</button>
+                    </h2>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Хөтөлбөр Сонгох (ID)</label>
+                        <select id="sel-prog" onchange="calculatePricing()" class="w-full bg-slate-50 border rounded-lg p-2 text-sm font-medium"></select>
                     </div>
-                    <div class="w-9 h-9 rounded-full bg-indigo-100 border-2 border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xs shadow-sm">
-                        MN
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Dynamic Content Body -->
-        <div class="p-8 flex-1 space-y-6 max-w-7xl w-full mx-auto">
-
-            <!-- 1. DASHBOARD VIEW (Matching screenshot) -->
-            <section id="view-dashboard" class="space-y-6">
-                
-                <!-- 4 KPI Metrics Grid (Exact Replica of Screenshot) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    
-                    <!-- Card 1: Total Leads -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">НИЙТ СЭЖИМ</p>
-                            <h3 id="stat-total-leads" class="text-3xl font-extrabold text-slate-900 mt-1">4</h3>
-                            <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-                                <span>↑ Идэвхтэй өргөдлүүд</span>
-                            </p>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Сурагчдын Тоо</label>
+                            <input type="number" id="inp-students" value="15" min="1" oninput="calculatePricing()" class="w-full bg-slate-50 border rounded-lg p-2 text-sm font-bold text-slate-800">
                         </div>
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                            <i data-lucide="users" class="w-6 h-6"></i>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Маржин / Маркап %</label>
+                            <input type="number" id="inp-markup" value="10.0" step="0.5" oninput="onMarkupInput(this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-sm font-bold text-indigo-600">
                         </div>
                     </div>
-
-                    <!-- Card 2: Active Deals -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
-                        <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">ИДЭВХТЭЙ ХЭЛЦЭЛ</p>
-                            <h3 id="stat-active-deals" class="text-3xl font-extrabold text-slate-900 mt-1">2</h3>
-                            <p class="text-xs text-indigo-600 font-semibold mt-1">Сургуулийн өргөдлүүд</p>
-                        </div>
-                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
-                            <i data-lucide="file-text" class="w-6 h-6"></i>
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 space-y-1">
+                        <label class="block text-xs font-extrabold text-amber-900 uppercase">Зарах үнэ гараас бичих</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="number" id="inp-custom-price" placeholder="Автомат бодолтоор..." oninput="onCustomPriceInput(this.value)" class="w-full bg-white border border-amber-300 rounded-lg p-2 text-sm font-black text-indigo-950">
+                            <span id="lbl-curr-symbol" class="font-extrabold text-amber-900 text-sm">USD</span>
                         </div>
                     </div>
-
-                    <!-- Card 3: Commission -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
-                        <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">БАТАЛГААЖСАН КОМИСС</p>
-                            <h3 id="stat-won-commission" class="text-3xl font-extrabold text-emerald-600 mt-1">$1,600</h3>
-                            <p class="text-xs text-slate-500 font-medium mt-1">Боломжит орлого: <span id="stat-potential-commission" class="font-bold text-slate-700">$4,000</span></p>
-                        </div>
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
-                            <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+                    <div class="border-t pt-3 space-y-3">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase">Валютын Ханш (MNT)</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><span class="text-xs text-slate-500">USD:</span><input type="number" id="inp-usd" value="3620" oninput="calculatePricing()" class="w-full bg-slate-50 border rounded p-1.5 text-xs font-semibold"></div>
+                            <div><span class="text-xs text-slate-500">SGD:</span><input type="number" id="inp-sgd" value="2890" oninput="calculatePricing()" class="w-full bg-slate-50 border rounded p-1.5 text-xs font-semibold"></div>
                         </div>
                     </div>
-
-                    <!-- Card 4: Open Tasks -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
-                        <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">НЭЭЛТТЭЙ ДААЛГАВАР</p>
-                            <h3 id="stat-open-tasks" class="text-3xl font-extrabold text-slate-900 mt-1">2</h3>
-                            <p id="stat-overdue-tasks" class="text-xs text-rose-600 font-semibold mt-1">1 хугацаа хэтэрсэн</p>
+                    <div class="border-t pt-3 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Зардлын Тохиргоо</label>
+                            <button onclick="addCustomExpense()" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded">+ Нэмэх</button>
                         </div>
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
-                            <i data-lucide="clock" class="w-6 h-6"></i>
-                        </div>
+                        <div id="custom-expenses-list" class="space-y-2 max-h-[180px] overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
-                <!-- Pipeline & Recent Leads Row -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Pipeline Visualization -->
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                                <i data-lucide="git-commit" class="w-5 h-5 text-indigo-600"></i>
-                                <span>Сурагчдын явцын воронка (Pipeline)</span>
-                            </h3>
-                            <span class="text-xs font-semibold text-slate-400">Нийт сурагчид төлөвөөр</span>
-                        </div>
-                        <div id="pipeline-bars" class="space-y-3.5 pt-2">
-                            <!-- Dynamic Pipeline -->
-                        </div>
-                    </div>
-
-                    <!-- Upcoming Follow-ups -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-indigo-900 text-white p-5 rounded-xl shadow-md flex justify-between items-center">
                         <div>
-                            <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <i data-lucide="calendar" class="w-5 h-5 text-amber-500"></i>
-                                <span>Ойрын холбогдох сурагчид</span>
-                            </h3>
-                            <div id="dashboard-followups-list" class="space-y-3 max-h-[320px] overflow-y-auto pr-1 custom-scroll">
-                                <!-- Dynamic Followups -->
-                            </div>
+                            <span id="banner-id" class="bg-amber-400 text-slate-900 font-extrabold text-xs px-2.5 py-1 rounded">JPN-01</span>
+                            <h3 id="banner-title" class="text-lg font-bold mt-1">Japan Global Youth</h3>
+                            <p id="banner-location" class="text-xs text-indigo-200 mt-0.5">Japan | 14 өдөр</p>
                         </div>
-                        <button onclick="switchTab('leads')" class="mt-4 w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl transition text-center border border-slate-200/80">
-                            Бүх сурагчдыг харах →
-                        </button>
+                        <div class="text-right bg-indigo-800/80 p-3 rounded-lg border border-indigo-700">
+                            <span class="text-xs text-indigo-200">Сонгосон Шатлал:</span>
+                            <div id="banner-tier" class="text-base font-extrabold text-amber-300">15-29 сурагч</div>
+                            <div id="banner-net" class="text-xs font-semibold text-white mt-0.5">NET: $2,793 USD</div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Recent Students List -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-                        <h3 class="text-base font-bold text-slate-900">Сүүлд нэмэгдсэн сурагчдын бүртгэл</h3>
-                        <button onclick="switchTab('leads')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800">Бүгдийг харах</button>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <div class="bg-white p-3 rounded-xl border shadow-sm">
+                            <span class="text-[11px] text-slate-500 block">Зарах Үнэ / Сурагч</span>
+                            <span id="kpi-price-curr" class="text-base font-black text-indigo-900 block">$3,080 USD</span>
+                            <span id="kpi-price-mnt" class="text-[10px] text-slate-600 block">11,149,600 ₮</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border shadow-sm">
+                            <span class="text-[11px] text-slate-500 block">Нийт Орлого</span>
+                            <span id="kpi-revenue" class="text-base font-extrabold text-slate-800 block">167,244,000 ₮</span>
+                            <span id="kpi-rev-curr" class="text-[10px] text-slate-500 block">$46,200 USD</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border shadow-sm">
+                            <span class="text-[11px] text-slate-500 block">Бохир Ашиг</span>
+                            <span id="kpi-gp" class="text-base font-extrabold text-emerald-600 block">15,552,000 ₮</span>
+                            <span id="kpi-gp-margin" class="text-[10px] font-bold text-emerald-700 block">Margin: 9.3%</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border shadow-sm">
+                            <span class="text-[11px] text-slate-500 block">Цэвэр Ашиг</span>
+                            <span id="kpi-np" class="text-base font-extrabold text-blue-600 block">12,352,000 ₮</span>
+                            <span id="kpi-np-margin" class="text-[10px] font-bold text-blue-700 block">Margin: 7.4%</span>
+                        </div>
+                        <div class="bg-amber-50 p-3 rounded-xl border border-amber-300 shadow-sm col-span-2 sm:col-span-1">
+                            <span class="text-[11px] font-bold text-amber-900 block">🎯 Breakeven</span>
+                            <span id="kpi-be-students" class="text-base font-black text-amber-950 block">3 Сурагч</span>
+                            <span class="text-[10px] text-amber-800 block">Fixed Cover</span>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-600">
-                            <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200/60">
+
+                    <div class="bg-white rounded-xl shadow-md border overflow-hidden">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-100 text-slate-600 font-semibold">
                                 <tr>
-                                    <th class="p-4">Овог Нэр</th>
-                                    <th class="p-4">Утас / И-Мэйл</th>
-                                    <th class="p-4">Сонирхсон Улс</th>
-                                    <th class="p-4">Төлөв Статус</th>
-                                    <th class="p-4">Зөвлөх</th>
-                                    <th class="p-4">Дараах холбогдох</th>
+                                    <th class="px-4 py-2">Үзүүлэлт</th>
+                                    <th class="px-4 py-2 text-right">Сурагч бүрээр (MNT)</th>
+                                    <th class="px-4 py-2 text-right">Нийт Дүн (MNT)</th>
+                                    <th class="px-4 py-2 text-right">% Орлогоос</th>
                                 </tr>
                             </thead>
-                            <tbody id="dashboard-recent-table" class="divide-y divide-slate-100">
-                                <!-- Dynamic Content -->
-                            </tbody>
+                            <tbody class="divide-y divide-slate-200" id="tbody-pnl"></tbody>
                         </table>
                     </div>
                 </div>
+            </div>
+        </section>
 
-            </section>
+        <!-- TAB 2: CONSOLIDATED P&L -->
+        <section id="sec-all-pnl" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-4">
+                <div class="border-b pb-3 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-indigo-950"><i class="fa-solid fa-chart-pie text-indigo-600 mr-2"></i> Нэгдсэн P&L & Ашгийн Тооцоо</h2>
+                    <div class="flex gap-2">
+                        <button onclick="selectAllConsolidated(true)" class="bg-slate-100 px-3 py-1 rounded text-xs font-bold">Бүгдийг Сонгох</button>
+                        <button onclick="selectAllConsolidated(false)" class="bg-slate-100 px-3 py-1 rounded text-xs font-bold">Цэвэрлэх</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto rounded-lg border">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-indigo-900 text-white font-semibold">
+                            <tr>
+                                <th class="p-2.5 text-center">Сонгох</th>
+                                <th class="p-2.5">Код</th>
+                                <th class="p-2.5">Нэр</th>
+                                <th class="p-2.5">Улс</th>
+                                <th class="p-2.5 w-20">Сурагчид</th>
+                                <th class="p-2.5">NET</th>
+                                <th class="p-2.5">Маржин</th>
+                                <th class="p-2.5">Зарах Үнэ</th>
+                                <th class="p-2.5 text-right">Нийт Орлого (₮)</th>
+                                <th class="p-2.5 text-right">Цэвэр Ашиг (₮)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-consolidated" class="divide-y"></tbody>
+                        <tfoot id="tfoot-consolidated" class="bg-slate-100 font-black"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
 
-            <!-- 2. LEADS MANAGEMENT VIEW -->
-            <section id="view-leads" class="hidden space-y-4">
-                <!-- Search and Controls -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex flex-wrap items-center gap-3 flex-1">
-                        <div class="relative flex-1 min-w-[240px]">
-                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="lead-search" oninput="renderLeads()" placeholder="Нэр, утас, и-мэйлээр хайх..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-                        <select id="filter-status" onchange="renderLeads()" class="border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium bg-white outline-none">
-                            <option value="ALL">Бүх статус</option>
-                            <option value="New">Шинэ (New)</option>
-                            <option value="Contacted">Холбогдсон (Contacted)</option>
-                            <option value="Qualified">Шаардлага хангасан</option>
-                            <option value="Application Prep">Материал бэлтгэж буй</option>
-                            <option value="Converted">Суралцахаар баталгаажсан</option>
-                            <option value="Lost">Боломжгүй</option>
+        <!-- TAB 3: SCHOOLS B2B CRM -->
+        <section id="sec-schools" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-4">
+                <div class="border-b pb-4 flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-indigo-950"><i class="fa-solid fa-school text-indigo-600 mr-2"></i> Харилцагч Сургуулиуд & B2B Борлуулалт</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Улаанбаатарын ЕБС-уудын захирлуудтай холбогдох, follow-up хуваарь болон бэлэн имэйл загварууд.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openSchoolModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-xs font-bold">+ Сургууль Нэмэх</button>
+                        <button onclick="exportSchoolsExcel()" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-file-excel mr-1"></i> Excel Татах</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg border">
+                    <div>
+                        <input type="text" id="inp-school-search" oninput="renderSchoolsTable()" placeholder="Сургууль, захирал, имэйлээр хайх..." class="w-full border rounded p-1.5 text-xs font-semibold">
+                    </div>
+                    <div>
+                        <select id="sel-district-filter" onchange="renderSchoolsTable()" class="w-full border rounded p-1.5 text-xs font-semibold">
+                            <option value="">Бүх Дүүрэг</option>
+                            <option value="Хан-Уул">Хан-Уул</option>
+                            <option value="Баянгол">Баянгол</option>
+                            <option value="Баянзүрх">Баянзүрх</option>
+                            <option value="Сүхбаатар">Сүхбаатар</option>
+                            <option value="Сонгинохайрхан">Сонгинохайрхан</option>
+                            <option value="Багахангай">Багахангай</option>
                         </select>
                     </div>
-
-                    <button onclick="openLeadModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 transition shadow-sm">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Шинэ сурагч нэмэх</span>
-                    </button>
+                    <div>
+                        <select id="sel-status-filter" onchange="renderSchoolsTable()" class="w-full border rounded p-1.5 text-xs font-semibold">
+                            <option value="">Бүх Төлөв</option>
+                            <option value="Мэйл илгээсэн">Мэйл илгээсэн</option>
+                            <option value="Хариу ирсэн">Хариу ирсэн / Уулзалт</option>
+                            <option value="Хэлцэл хийгдсэн">Хэлцэл хийгдсэн</option>
+                            <option value="Хүлээгдэж буй">Хүлээгдэж буй</option>
+                        </select>
+                    </div>
+                    <div class="text-right flex items-center justify-end">
+                        <span id="lbl-schools-count" class="text-xs font-bold text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded border border-indigo-200">Нийт 0 сургууль</span>
+                    </div>
                 </div>
 
-                <!-- Table View -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-600">
-                            <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase border-b border-slate-200/60">
+                <!-- Schools Table -->
+                <div class="overflow-x-auto rounded-lg border max-h-[520px] overflow-y-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-indigo-900 text-white font-semibold sticky top-0 z-10">
+                            <tr>
+                                <th class="p-2.5">Дүүрэг</th>
+                                <th class="p-2.5">Сургуулийн Нэр</th>
+                                <th class="p-2.5">Сонирхсон Хөтөлбөр</th>
+                                <th class="p-2.5">Захирлын Мэдээлэл</th>
+                                <th class="p-2.5">Менежер / Нэмэлт</th>
+                                <th class="p-2.5">Дараагийн Залгах Огноо</th>
+                                <th class="p-2.5">Follow-up Төлөв</th>
+                                <th class="p-2.5 text-center">Борлуулалтын Үйлдэл</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-schools" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: COMPLETE AGENCY CRM -->
+        <section id="sec-crm-full" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-4">
+                <div class="border-b pb-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-indigo-950"><i class="fa-solid fa-graduation-cap text-indigo-600 mr-2"></i> International Student Recruitment CRM</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Сурагчдын бүртгэл (Leads), Хэлцэл (Deals), болон Даалгаврын хуваарь (Tasks).</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-file-import"></i> Full CRM Excel Оруулах
+                            <input type="file" id="file-full-crm" accept=".xlsx, .xls" onchange="handleFullCRMUpload(event)" class="hidden">
+                        </label>
+                        <button onclick="exportFullCRMExcel()" class="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold">Excel Татах</button>
+                    </div>
+                </div>
+
+                <div class="flex border-b text-xs font-bold space-x-2">
+                    <button onclick="switchCRMSubTab('leads')" id="subtab-leads" class="px-4 py-2 border-b-2 border-indigo-600 text-indigo-600">🎓 Сурагчид (Leads)</button>
+                    <button onclick="switchCRMSubTab('deals')" id="subtab-deals" class="px-4 py-2 text-slate-500 hover:text-slate-800">💼 Хэлцэл & Комисс (Deals)</button>
+                    <button onclick="switchCRMSubTab('tasks')" id="subtab-tasks" class="px-4 py-2 text-slate-500 hover:text-slate-800">📋 Даалгавар (Tasks)</button>
+                </div>
+
+                <div id="sub-sec-leads" class="space-y-4">
+                    <div class="overflow-x-auto border rounded-lg max-h-[450px] overflow-y-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-indigo-900 text-white sticky top-0">
                                 <tr>
-                                    <th class="p-4">Овог Нэр</th>
-                                    <th class="p-4">Холбогдох</th>
-                                    <th class="p-4">Сонирхсон Улс & Зэрэг</th>
-                                    <th class="p-4">Төлөв Статус</th>
-                                    <th class="p-4">Зөвлөх</th>
-                                    <th class="p-4">Дараах холбогдох</th>
-                                    <th class="p-4 text-right">Үйлдэл</th>
+                                    <th class="p-2">ID</th>
+                                    <th class="p-2">Сурагчийн Нэр</th>
+                                    <th class="p-2">Имэйл / Утас</th>
+                                    <th class="p-2">Улс / Хөтөлбөр</th>
+                                    <th class="p-2">Төлөв</th>
+                                    <th class="p-2">Зөвлөх</th>
+                                    <th class="p-2">Тэмдэглэл</th>
                                 </tr>
                             </thead>
-                            <tbody id="leads-table-body" class="divide-y divide-slate-100">
-                                <!-- Dynamic Rows -->
-                            </tbody>
+                            <tbody id="tbody-crm-leads" class="divide-y"></tbody>
                         </table>
                     </div>
                 </div>
-            </section>
 
-            <!-- 3. PARTNERS VIEW -->
-            <section id="view-partners" class="hidden space-y-4">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs text-slate-500 font-medium">Гэрээт сургууль болон гадаад агентлагуудын сүлжээ</p>
-                    <button onclick="openPartnerModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Сургууль нэмэх</span>
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="partners-grid">
-                    <!-- Dynamic Partner Cards -->
-                </div>
-            </section>
-
-            <!-- 4. DEALS VIEW -->
-            <section id="view-deals" class="hidden space-y-4">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs text-slate-500 font-medium">Сургуулийн өргөдлийн явц болон баталгаажих комисс</p>
-                    <button onclick="openDealModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Шинэ хэлцэл нэмэх</span>
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-600">
-                            <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase border-b border-slate-200/60">
+                <div id="sub-sec-deals" class="hidden space-y-4">
+                    <div class="overflow-x-auto border rounded-lg max-h-[450px] overflow-y-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-indigo-900 text-white sticky top-0">
                                 <tr>
-                                    <th class="p-4">Сурагч</th>
-                                    <th class="p-4">Сургууль / Мэргэжил</th>
-                                    <th class="p-4">Явцын шат</th>
-                                    <th class="p-4">Сургалтын төлбөр</th>
-                                    <th class="p-4">Комисс %</th>
-                                    <th class="p-4">Агентлагийн Орлого</th>
-                                    <th class="p-4 text-right">Үйлдэл</th>
+                                    <th class="p-2">ID</th>
+                                    <th class="p-2">Сурагч</th>
+                                    <th class="p-2">Их Сургууль / Хөтөлбөр</th>
+                                    <th class="p-2">Төлбөр (USD)</th>
+                                    <th class="p-2 bg-emerald-800 text-white">Бодит Комисс (USD)</th>
+                                    <th class="p-2">Шат</th>
+                                    <th class="p-2">Зөвлөх</th>
                                 </tr>
                             </thead>
-                            <tbody id="deals-table-body" class="divide-y divide-slate-100">
-                                <!-- Dynamic Deals -->
-                            </tbody>
+                            <tbody id="tbody-crm-deals" class="divide-y"></tbody>
                         </table>
                     </div>
                 </div>
-            </section>
 
-            <!-- 5. TASKS VIEW -->
-            <section id="view-tasks" class="hidden space-y-4">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs text-slate-500 font-medium">Зөвлөхүүдийн өдөр тутмын ажил, сануулга</p>
-                    <button onclick="openTaskModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Даалгавар нэмэх</span>
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
-                    <div id="tasks-list" class="space-y-3">
-                        <!-- Dynamic Tasks -->
+                <div id="sub-sec-tasks" class="hidden space-y-4">
+                    <div class="overflow-x-auto border rounded-lg max-h-[450px] overflow-y-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-indigo-900 text-white sticky top-0">
+                                <tr>
+                                    <th class="p-2">ID</th>
+                                    <th class="p-2">Даалгавар</th>
+                                    <th class="p-2">Хамаарах Нэр</th>
+                                    <th class="p-2">Дуусах Огноо</th>
+                                    <th class="p-2">Төлөв</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-crm-tasks" class="divide-y"></tbody>
+                        </table>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-        </div>
+        <!-- TAB 5: COMPARE -->
+        <section id="sec-compare" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-4">
+                <h2 class="text-xl font-bold text-indigo-950">Хөтөлбөрүүд Харьцуулах</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select id="comp-prog-1" onchange="renderComparisonTable()" class="border rounded p-2 text-xs font-bold"></select>
+                    <select id="comp-prog-2" onchange="renderComparisonTable()" class="border rounded p-2 text-xs font-bold"></select>
+                    <select id="comp-prog-3" onchange="renderComparisonTable()" class="border rounded p-2 text-xs font-bold"></select>
+                </div>
+                <div class="overflow-x-auto border rounded-lg">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-indigo-900 text-white font-semibold"><tr id="tr-comp-head"></tr></thead>
+                        <tbody id="tbody-comp-data" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: QUOTE -->
+        <section id="sec-quote" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h2 class="text-xl font-bold text-indigo-950">Албан Ёсны Үнийн Санал</h2>
+                    <button onclick="window.print()" class="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-print mr-1"></i> Хэвлэх</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded">
+                    <div><label class="block text-xs font-bold mb-1">Сургуулийн Нэр</label><input type="text" id="quote-client" value="Орчлон Сургууль" oninput="updateQuoteView()" class="w-full border rounded p-1.5 text-xs font-bold"></div>
+                    <div><label class="block text-xs font-bold mb-1">Огноо</label><input type="date" id="quote-date" value="2026-10-19" onchange="updateQuoteView()" class="w-full border rounded p-1.5 text-xs"></div>
+                </div>
+                <div id="print-area" class="border p-6 rounded-xl space-y-4">
+                    <div class="flex justify-between border-b pb-2">
+                        <h3 class="text-xl font-black text-indigo-950">CEA LINK EDUCATION</h3>
+                        <span id="q-view-date" class="text-xs font-bold">2026-10-19</span>
+                    </div>
+                    <div class="grid grid-cols-2 text-xs">
+                        <div>Харилцагч: <b id="q-view-client">Орчлон Сургууль</b></div>
+                        <div class="text-right">Хөтөлбөр: <b id="q-title">Japan Youth</b></div>
+                    </div>
+                    <table class="w-full text-xs border">
+                        <thead class="bg-indigo-900 text-white">
+                            <tr><th class="p-2">Тайлбар</th><th class="p-2 text-right">Үнэ (Валют)</th><th class="p-2 text-right">Үнэ (MNT)</th><th class="p-2 text-right">Нийт Дүн</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="p-2">1 Сурагчийн Төлбөр</td><td id="q-usd" class="p-2 text-right font-bold">$3,080</td><td id="q-mnt" class="p-2 text-right font-bold">11,149,600 ₮</td><td id="q-total-mnt" class="p-2 text-right font-black text-emerald-700">167,244,000 ₮</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: DATABASE -->
+        <section id="sec-db" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-4">
+                <div class="border-b pb-3 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-indigo-950">Хөтөлбөрийн Бааз</h2>
+                    <div class="flex gap-2">
+                        <button onclick="saveDatabaseManually()" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-bold">Хадгалах</button>
+                        <button onclick="exportDatabaseExcel()" class="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold">Excel Татах</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto border rounded-lg max-h-[500px] overflow-y-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-indigo-900 text-white sticky top-0"><tr id="tr-db-head"></tr></thead>
+                        <tbody id="tbody-db-data" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- MODAL FOR NEW/EDIT LEAD -->
-    <div id="modal-lead" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                <h3 id="modal-lead-title" class="font-bold text-slate-900 text-base">Шинэ Сурагч Бүртгэх</h3>
-                <button onclick="closeModal('modal-lead')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- EMAIL TEMPLATE MODAL -->
+    <div id="modal-email-templates" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-indigo-950 text-base"><i class="fa-solid fa-envelope-open-text text-indigo-600 mr-2"></i> Борлуулалтын Имэйл Бэлтгэх</h3>
+                <button onclick="closeEmailModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form id="form-lead" onsubmit="saveLead(event)" class="space-y-4">
-                <input type="hidden" id="lead-id">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Сурагчийн нэр *</label>
-                        <input type="text" id="lead-name" required class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">И-Мэйл хаяг</label>
-                        <input type="email" id="lead-email" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Утас *</label>
-                        <input type="text" id="lead-phone" required class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Сонирхож буй улс *</label>
-                        <select id="lead-country" required class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                            <option value="Канада">Канада</option>
-                            <option value="Австрали">Австрали</option>
-                            <option value="АНУ">АНУ</option>
-                            <option value="Их Британи">Их Британи</option>
-                            <option value="Герман">Герман</option>
-                            <option value="Япон">Япон</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Суралцах зэрэг</label>
-                        <select id="lead-level" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                            <option value="Бакалавр">Бакалавр</option>
-                            <option value="Магистр">Магистр</option>
-                            <option value="Хэлний курс">Хэлний курс</option>
-                            <option value="Ахлах сургууль">Ахлах сургууль</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Зөвлөх</label>
-                        <select id="lead-counselor" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                            <option value="Дөлгөөн">Дөлгөөн</option>
-                            <option value="Хонгорзул">Хонгорзул</option>
-                            <option value="Амирлан">Амирлан</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Төлөв Статус</label>
-                        <select id="lead-status" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                            <option value="New">Шинэ (New)</option>
-                            <option value="Contacted">Холбогдсон</option>
-                            <option value="Qualified">Шаардлага хангасан</option>
-                            <option value="Application Prep">Материал бэлтгэж буй</option>
-                            <option value="Converted">Баталгаажсан</option>
-                            <option value="Lost">Боломжгүй</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Дараах холбогдох огноо</label>
-                        <input type="date" id="lead-followup" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-                <div class="flex justify-end gap-3 pt-3 border-t">
-                    <button type="button" onclick="closeModal('modal-lead')" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50">Цуцлах</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs">Хадгалах</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL FOR PARTNER -->
-    <div id="modal-partner" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between border-b pb-3 mb-4">
-                <h3 class="font-bold text-slate-900 text-base">Шинэ Сургууль Бүртгэх</h3>
-                <button onclick="closeModal('modal-partner')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form id="form-partner" onsubmit="savePartner(event)" class="space-y-4">
+            
+            <div class="space-y-3 text-xs">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Сургуулийн нэр *</label>
-                    <input type="text" id="partner-name" required class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Улс</label>
-                        <input type="text" id="partner-country" placeholder="Канада" class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Комисс (%)</label>
-                        <input type="number" id="partner-commission" placeholder="15" class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                    </div>
-                </div>
-                <div class="flex justify-end gap-3 pt-3 border-t">
-                    <button type="button" onclick="closeModal('modal-partner')" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Цуцлах</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs">Хадгалах</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL FOR DEAL -->
-    <div id="modal-deal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between border-b pb-3 mb-4">
-                <h3 class="font-bold text-slate-900 text-base">Шинэ Хэлцэл Бүртгэх</h3>
-                <button onclick="closeModal('modal-deal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form id="form-deal" onsubmit="saveDeal(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Сурагч *</label>
-                    <input type="text" id="deal-student" required class="w-full border rounded-xl p-2.5 text-xs font-medium">
+                    <label class="block font-bold text-slate-700 mb-1">Имэйл хүлээн авагч:</label>
+                    <input type="text" id="m-mail-to" readonly class="w-full bg-slate-100 border rounded p-2 font-bold text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Сургууль / Мэргэжил</label>
-                    <input type="text" id="deal-program" required placeholder="Langara College - Business" class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Төлбөр ($ USD)</label>
-                        <input type="number" id="deal-value" required placeholder="16000" class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Комисс (%)</label>
-                        <input type="number" id="deal-rate" value="15" class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Явцын шат</label>
-                    <select id="deal-stage" class="w-full border rounded-xl p-2.5 text-xs font-medium bg-white">
-                        <option value="Application Prep">Материал бэлтгэл</option>
-                        <option value="Submitted">Сургууль руу явуулсан</option>
-                        <option value="Visa Granted">Виз гарсан (Won)</option>
+                    <label class="block font-bold text-slate-700 mb-1">Имэйлийн зорилтот загвар сонгох:</label>
+                    <select id="m-mail-tpl-select" onchange="applyEmailTemplate()" class="w-full border rounded p-2 font-bold text-indigo-900">
+                        <option value="intro">1. Анхны танилцуулга хүргүүлэх загвар</option>
+                        <option value="quote">2. Албан ёсны үнийн санал илгээх загвар</option>
+                        <option value="followup">3. Уулзалт товлох Follow-up сануулга</option>
                     </select>
                 </div>
-                <div class="flex justify-end gap-3 pt-3 border-t">
-                    <button type="button" onclick="closeModal('modal-deal')" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Цуцлах</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs">Хадгалах</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL FOR TASK -->
-    <div id="modal-task" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between border-b pb-3 mb-4">
-                <h3 class="font-bold text-slate-900 text-base">Шинэ Даалгавар Нэмэх</h3>
-                <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form id="form-task" onsubmit="saveTask(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Даалгаврын утга *</label>
-                    <input type="text" id="task-title" required class="w-full border rounded-xl p-2.5 text-xs font-medium">
+                    <label class="block font-bold text-slate-700 mb-1">Гарчиг (Subject):</label>
+                    <input type="text" id="m-mail-subject" class="w-full border rounded p-2 font-bold">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Дуусах огноо</label>
-                        <input type="date" id="task-duedate" required class="w-full border rounded-xl p-2.5 text-xs font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Зөвлөх</label>
-                        <select id="task-counselor" class="w-full border rounded-xl p-2.5 text-xs font-medium bg-white">
-                            <option value="Дөлгөөн">Дөлгөөн</option>
-                            <option value="Хонгорзул">Хонгорзул</option>
-                            <option value="Амирлан">Амирлан</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Захидлын агуулга (Body):</label>
+                    <textarea id="m-mail-body" rows="8" class="w-full border rounded p-2 font-sans text-xs leading-relaxed"></textarea>
                 </div>
-                <div class="flex justify-end gap-3 pt-3 border-t">
-                    <button type="button" onclick="closeModal('modal-task')" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Цуцлах</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs">Хадгалах</button>
+            </div>
+
+            <div class="flex justify-between items-center border-t pt-3">
+                <span class="text-[11px] text-slate-400">* Outlook/Gmail дээр автоматаар нээгдэнэ.</span>
+                <div class="flex gap-2">
+                    <button onclick="closeEmailModal()" class="px-4 py-1.5 border rounded text-xs font-bold text-slate-600">Болих</button>
+                    <button onclick="sendPreparedEmail()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane"></i> Имэйл Нээх & Илгээх
+                    </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION CORE -->
+    <!-- CLOUD CONFIG MODAL -->
+    <div id="modal-cloud" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4 text-xs">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-indigo-950 text-base"><i class="fa-solid fa-cloud text-amber-500 mr-2"></i> Cloud Бааз Холболт</h3>
+                <button onclick="closeCloudModal()" class="text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-slate-600 leading-relaxed">
+                Google Sheets Apps Script-ээс авсан <b>Web app URL</b> холбоосоо энд оруулахад багийн 3 хүн хаанаас ч бодит цагт зэрэг нэг бааз дээр ажиллана.
+            </p>
+            <div>
+                <label class="block font-bold text-slate-800 mb-1">Google Apps Script Web App URL:</label>
+                <input type="text" id="inp-cloud-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border rounded p-2 text-xs font-mono">
+            </div>
+            <div class="flex justify-between items-center border-t pt-3">
+                <button onclick="disconnectCloud()" class="text-red-600 font-bold hover:underline">Холболт салгах</button>
+                <div class="flex gap-2">
+                    <button onclick="closeCloudModal()" class="px-3 py-1.5 border rounded font-bold text-slate-600">Болих</button>
+                    <button onclick="saveCloudUrl()" class="px-3 py-1.5 bg-indigo-600 text-white rounded font-bold shadow">Хадгалах & Синк</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
     <script>
-        // Exact Initial Data matching user's Excel structure & screenshot stats
-        const DEFAULT_DB = {
-            leads: [
-                { id: "L-101", name: "Анужин Батзориг", email: "anujin@gmail.com", phone: "99112233", country: "Канада", level: "Бакалавр", status: "Application Prep", counselor: "Дөлгөөн", followup: "2026-10-20" },
-                { id: "L-102", name: "Тэмүүлэн Болд", email: "temuulen@yahoo.com", phone: "88001122", country: "Австрали", level: "Магистр", status: "Qualified", counselor: "Хонгорзул", followup: "2026-10-18" },
-                { id: "L-103", name: "Солонго Энхбат", email: "solongo@gmail.com", phone: "95114455", country: "Герман", level: "Бакалавр", status: "New", counselor: "Амирлан", followup: "2026-10-16" },
-                { id: "L-104", name: "Билгүүүн Ганбаатар", email: "bilguun@gmail.com", phone: "91910000", country: "АНУ", level: "Хэлний курс", status: "Converted", counselor: "Дөлгөөн", followup: "2026-11-01" }
-            ],
-            partners: [
-                { id: "P-1", name: "Langara College", country: "Канада", commission: 15, owner: "Дөлгөөн" },
-                { id: "P-2", name: "Alexander Academy", country: "Канада", commission: 20, owner: "Хонгорзул" },
-                { id: "P-3", name: "SRH Universities", country: "Герман", commission: 12, owner: "Амирлан" }
-            ],
-            deals: [
-                { id: "D-1", student: "Анужин Батзориг", program: "Langara College - Business", value: 16000, rate: 15, stage: "Application Prep" },
-                { id: "D-2", student: "Билгүүүн Ганбаатар", program: "Alexander Academy - ESL", value: 8000, rate: 20, stage: "Visa Granted" }
-            ],
-            tasks: [
-                { id: "T-1", title: "Анужингийн SOP эссэ хянах", duedate: "2026-10-17", counselor: "Дөлгөөн", status: "In Progress" },
-                { id: "T-2", title: "Тэмүүлэн рүү дансны үлдэгдэл сануулах", duedate: "2026-10-15", counselor: "Хонгорзул", status: "Not Started" }
-            ]
+        const defaultDatabase = [
+            {"id": "VTM-05 Beyond", "name": "Vietnam Village Voices", "country": "Vietnam", "duration": "6D5N", "net10_14": 1100, "net15_29": 980, "net30_plus": 920, "markup": 37.8, "customPrice": "", "students": 15, "selected": true, "route": "HANOI+MAICHAO", "currency": "USD"},
+            {"id": "VTM-06 Beyond", "name": "Animal Care and Conservation", "country": "Vietnam", "duration": "7D6N", "net10_14": 1250, "net15_29": 1170, "net30_plus": 1100, "markup": 15.4, "customPrice": "", "students": 15, "selected": true, "route": "Danang", "currency": "USD"},
+            {"id": "VTM-07 Beyond", "name": "Vietnam Village Voices", "country": "Vietnam", "duration": "6D5N", "net10_14": 1150, "net15_29": 1040, "net30_plus": 990, "markup": 29.8, "customPrice": "", "students": 15, "selected": true, "route": "HANOI", "currency": "USD"},
+            {"id": "BALI-05 Beyond", "name": "Impact Journey", "country": "Bali", "duration": "5D4N", "net10_14": 1350, "net15_29": 1200, "net30_plus": 1150, "markup": 12.5, "customPrice": "", "students": 15, "selected": true, "route": "Bali", "currency": "USD"},
+            {"id": "SP-1-BSE 7d", "name": "Service Learning", "country": "Singapore", "duration": "7D6N", "net10_14": 1450, "net15_29": 1392, "net30_plus": 1320, "markup": 10.0, "customPrice": "", "students": 15, "selected": true, "route": "Singapore", "currency": "SGD"},
+            {"id": "CN-SGH-01 Beyond", "name": "Insight of Future", "country": "China", "duration": "14 өдөр 13 шөнө", "net10_14": 2300, "net15_29": 2200, "net30_plus": 2100, "markup": 10.0, "customPrice": "", "students": 15, "selected": true, "route": "Shanghai-Hangzhou-Yiwu", "currency": "USD"}
+        ];
+
+        const defaultSchools = [
+            {"id": 1, "district": "Багахангай", "name": "Хангай сургууль", "type": "Төрийн", "email": "sbangal_sedup.edu.mn", "principal": "Э.Соёмбобат", "principalPhone": "88139988", "program": "Бүх хөтөлбөр", "secName": "Б.Эрдэнэ (Менежер)", "secPhone": "88112233", "nextContactDate": "2026-10-25", "status": "Мэйл илгээсэн", "notes": ""},
+            {"id": 2, "district": "Хан-Уул", "name": "17 дугаар сургууль", "type": "Төрийн өмчийн", "email": "dorjsurendashdorj59@gmail.com", "principal": "Д.Дашдорж", "principalPhone": "88098801", "program": "VTM-05 Beyond", "secName": "", "secPhone": "", "nextContactDate": "2026-10-29", "status": "Мэйл илгээсэн", "notes": ""},
+            {"id": 3, "district": "Хан-Уул", "name": "10 дугаар сургууль", "type": "Төрийн өмчийн", "email": "tuyasaihan10@gmail.com", "principal": "А.Туяасайхан", "principalPhone": "80092799", "program": "Бүх хөтөлбөр", "secName": "", "secPhone": "", "nextContactDate": "2026-11-02", "status": "Хүлээгдэж буй", "notes": ""},
+            {"id": 4, "district": "Хан-Уул", "name": "15 дугаар сургууль", "type": "Төрийн өмчийн", "email": "shurentsetsegulziibayar55@gmail.com", "principal": "Ө.Шүрэнцэцэг", "principalPhone": "99195436", "program": "BALI-05 Beyond", "secName": "", "secPhone": "", "nextContactDate": "2026-10-20", "status": "Мэйл илгээсэн", "notes": "Эргэж холбогдох"},
+            {"id": 5, "district": "Хан-Уул", "name": "Америк сургууль (ASU)", "type": "Төрийн бус", "email": "info@asu.edu.mn", "principal": "Д.Оюунсүрэн", "principalPhone": "91113484", "program": "SP-1-BSE 7d", "secName": "Sarah (Counselor)", "secPhone": "99001122", "nextContactDate": "2026-10-30", "status": "Хариу ирсэн", "notes": "Сингапур кемп сонирхсон"},
+            {"id": 6, "district": "Хан-Уул", "name": "Орчлон олон улсын сургууль", "type": "Төрийн бус", "email": "batmunkh.d@orchlon.edu.mn", "principal": "Д.Батмөнх", "principalPhone": "99110000", "program": "SP-1-BSE 7d", "secName": "Т.Энхмаа (Зохицуулагч)", "secPhone": "99014567", "nextContactDate": "2026-10-28", "status": "Хариу ирсэн", "notes": "Уулзалт товлох санал илгээх"},
+            {"id": 7, "district": "Сүхбаатар", "name": "Сант сургууль (Sant School)", "type": "Төрийн бус", "email": "admin@sant.school", "principal": "З.Энхмөнх", "principalPhone": "99108683", "program": "SP-1-BSE 7d", "secName": "Д.Баатар", "secPhone": "99119988", "nextContactDate": "2026-11-05", "status": "Хэлцэл хийгдсэн", "notes": "30 хүүхдийн бүрэлдэхүүнтэй явахаар тохирсон"},
+            {"id": 8, "district": "Сүхбаатар", "name": "1 дүгээр сургууль", "type": "Төрийн өмчийн", "email": "enkhbat.r@school1.edu.mn", "principal": "Р.Энхбат", "principalPhone": "94003151", "program": "CN-SGH-01 Beyond", "secName": "", "secPhone": "", "nextContactDate": "2026-10-15", "status": "Мэйл илгээсэн", "notes": ""},
+            {"id": 9, "district": "Баянгол", "name": "Шинэ Эхлэл сургууль", "type": "Төрийн өмчийн", "email": "oyungerel.1st@gmail.com", "principal": "Н.Оюунгэрэл", "principalPhone": "91048009", "program": "Бүх хөтөлбөр", "secName": "", "secPhone": "", "nextContactDate": "2026-10-28", "status": "Мэйл илгээсэн", "notes": ""},
+            {"id": 10, "district": "Баянзүрх", "name": "Шинэ монгол сургууль", "type": "Төрийн бус", "email": "lkhagvadorj@shinemongol.edu.mn", "principal": "Н.Лхагвадорж", "principalPhone": "95124216", "program": "SP-1-BSE 7d", "secName": "Б.Тулга", "secPhone": "99887766", "nextContactDate": "2026-11-01", "status": "Хэлцэл хийгдсэн", "notes": ""},
+            {"id": 11, "district": "Сонгинохайрхан", "name": "Ирээдүй цогцолбор", "type": "Төрийн өмчийн", "email": "g_tsagaantsooj@yahoo.com", "principal": "Г.Цагаанцоож", "principalPhone": "99193269", "program": "VTM-05 Beyond", "secName": "", "secPhone": "", "nextContactDate": "2026-10-10", "status": "Мэйл илгээсэн", "notes": ""}
+        ];
+
+        let crmLeads = [
+            {"id": "L-0001", "name": "Min-jun Park", "email": "minjun.park@example.com", "phone": "+82 10-0000-0000", "dest": "Canada", "level": "Bachelor's", "intake": "Fall 2027", "status": "Qualified", "counselor": "Counselor A", "notes": "Зуны кемп ба Бакалавр"}
+        ];
+        let crmDeals = [
+            {"id": "D-0001", "student": "Min-jun Park", "account": "Example University", "program": "BSc Computer Science", "tuition": 28000, "commRate": 0.10, "stage": "Application Submitted", "owner": "Counselor A"}
+        ];
+        let crmTasks = [
+            {"id": "T-0001", "task": "Collect transcripts & English scores", "related": "Min-jun Park", "dueDate": "2026-10-14", "status": "In Progress"}
+        ];
+
+        let database = [];
+        let schools = [];
+        let activeMailSchool = null;
+        let cloudUrl = localStorage.getItem("cealink_cloud_url") || "";
+
+        let customExpenses = [
+            { id: 1, name: "Удирдлагын багийн зардал", amount: 3000000, curr: "MNT", type: "fixed" },
+            { id: 2, name: "Маркетинг & Борлуулалт", amount: 200000, curr: "MNT", type: "fixed" }
+        ];
+
+        function roundUp10(val) { return Math.ceil(val / 10) * 10; }
+
+        window.onload = function() {
+            loadLocalData();
+            populateSelectOptions();
+            renderCustomExpensesUI();
+            renderDatabaseTable();
+            renderSchoolsTable();
+            renderCRMAll();
+            calculatePricing();
+            if (cloudUrl) {
+                initCloudSync();
+            }
         };
 
-        let db = { leads: [], partners: [], deals: [], tasks: [] };
-
-        // INITIALIZE APP
-        function initApp() {
-            const saved = localStorage.getItem('edurecruit_crm_db');
-            if (saved) {
-                try {
-                    db = JSON.parse(saved);
-                } catch(e) {
-                    db = JSON.parse(JSON.stringify(DEFAULT_DB));
-                }
-            } else {
-                db = JSON.parse(JSON.stringify(DEFAULT_DB));
-                saveDB();
-            }
-
-            renderAll();
+        function loadLocalData() {
+            try { database = JSON.parse(localStorage.getItem("cealink_db_2026")) || [...defaultDatabase]; } catch(e) { database = [...defaultDatabase]; }
+            try { schools = JSON.parse(localStorage.getItem("cealink_schools_2026")) || [...defaultSchools]; } catch(e) { schools = [...defaultSchools]; }
+            try { crmLeads = JSON.parse(localStorage.getItem("cealink_full_leads")) || crmLeads; } catch(e) {}
+            try { crmDeals = JSON.parse(localStorage.getItem("cealink_full_deals")) || crmDeals; } catch(e) {}
+            try { crmTasks = JSON.parse(localStorage.getItem("cealink_full_tasks")) || crmTasks; } catch(e) {}
+            document.getElementById("db-count").innerText = database.length;
         }
 
-        function saveDB() {
-            localStorage.setItem('edurecruit_crm_db', JSON.stringify(db));
-            renderAll();
+        // --- CLOUD SYNC ENGINE (REALTIME MULTI-USER) ---
+        function initCloudSync() {
+            document.getElementById("cloud-badge").className = "text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold ml-2";
+            document.getElementById("cloud-badge").innerText = "☁️ Cloud Synced";
+
+            fetch(cloudUrl)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.schools && data.schools.length > 0) {
+                        schools = data.schools;
+                        database = data.database || database;
+                        crmLeads = data.crmLeads || crmLeads;
+                        crmDeals = data.crmDeals || crmDeals;
+                        crmTasks = data.crmTasks || crmTasks;
+                        renderSchoolsTable();
+                        renderCRMAll();
+                        renderDatabaseTable();
+                        calculatePricing();
+                    }
+                })
+                .catch(err => console.log("Cloud pull note:", err));
         }
 
-        // TAB NAVIGATION
-        function switchTab(tabId) {
-            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/30');
-                b.classList.add('hover:bg-slate-800/80', 'text-slate-400');
-            });
+        function triggerCloudSave() {
+            localStorage.setItem("cealink_schools_2026", JSON.stringify(schools));
+            localStorage.setItem("cealink_db_2026", JSON.stringify(database));
+            localStorage.setItem("cealink_full_leads", JSON.stringify(crmLeads));
+            localStorage.setItem("cealink_full_deals", JSON.stringify(crmDeals));
+            localStorage.setItem("cealink_full_tasks", JSON.stringify(crmTasks));
 
-            document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/30');
-                activeBtn.classList.remove('hover:bg-slate-800/80', 'text-slate-400');
-            }
+            if (!cloudUrl) return;
 
-            const titles = {
-                dashboard: "Хянаж ажиллах",
-                leads: "Сэжим & Сурагчдын бүртгэл",
-                partners: "Гэрээт Сургуулиуд",
-                deals: "Хэлцэл & Орлого",
-                tasks: "Даалгаврууд & Сануулга"
-            };
-            document.getElementById('page-title').innerText = titles[tabId] || "EduRecruit CRM";
-        }
-
-        // RENDER ALL VIEWS
-        function renderAll() {
-            renderDashboard();
-            renderLeads();
-            renderPartners();
-            renderDeals();
-            renderTasks();
-            updateBadges();
-            lucide.createIcons();
-        }
-
-        function updateBadges() {
-            document.getElementById('badge-leads-count').innerText = db.leads.length;
-            const overdueTasks = db.tasks.filter(t => t.duedate < new Date().toISOString().slice(0,10) && t.status !== 'Completed').length;
-            document.getElementById('badge-tasks-count').innerText = overdueTasks || db.tasks.length;
-        }
-
-        // 1. DASHBOARD RENDER
-        function renderDashboard() {
-            document.getElementById('stat-total-leads').innerText = db.leads.length;
-            document.getElementById('stat-active-deals').innerText = db.deals.length;
-
-            let wonComm = 0;
-            let potComm = 0;
-            db.deals.forEach(d => {
-                const comm = (d.value * (d.rate / 100)) || 0;
-                potComm += comm;
-                if (d.stage === 'Visa Granted') wonComm += comm;
-            });
-
-            document.getElementById('stat-won-commission').innerText = `$${wonComm.toLocaleString()}`;
-            document.getElementById('stat-potential-commission').innerText = `$${potComm.toLocaleString()}`;
-
-            const openTasks = db.tasks.filter(t => t.status !== 'Completed');
-            document.getElementById('stat-open-tasks').innerText = openTasks.length;
-
-            const today = new Date().toISOString().slice(0, 10);
-            const overdueCount = openTasks.filter(t => t.duedate < today).length;
-            document.getElementById('stat-overdue-tasks').innerText = `${overdueCount} хугацаа хэтэрсэн`;
-
-            // Pipeline Progress Bars
-            const stages = ["New", "Qualified", "Application Prep", "Converted"];
-            const stageLabels = { "New": "Шинэ", "Qualified": "Шаардлага хангасан", "Application Prep": "Материал бэлтгэж буй", "Converted": "Баталгаажсан" };
-            
-            const pipelineContainer = document.getElementById('pipeline-bars');
-            pipelineContainer.innerHTML = '';
-
-            stages.forEach(st => {
-                const count = db.leads.filter(l => l.status === st).length;
-                const pct = db.leads.length ? Math.round((count / db.leads.length) * 100) : 0;
-
-                pipelineContainer.innerHTML += `
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                            <span>${stageLabels[st]} (${st})</span>
-                            <span>${count} сурагч (${pct}%)</span>
-                        </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                            <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Followups List
-            const followupsList = document.getElementById('dashboard-followups-list');
-            followupsList.innerHTML = '';
-            const sortedLeads = [...db.leads].sort((a,b) => (a.followup || '').localeCompare(b.followup || '')).slice(0, 5);
-
-            sortedLeads.forEach(l => {
-                const isOverdue = l.followup && l.followup < today;
-                followupsList.innerHTML += `
-                    <div class="flex items-center justify-between p-3 rounded-xl border ${isOverdue ? 'border-rose-200 bg-rose-50/50' : 'border-slate-100 bg-slate-50/80'}">
-                        <div>
-                            <p class="text-xs font-bold text-slate-800">${l.name}</p>
-                            <p class="text-[11px] text-slate-500">${l.country} • ${l.counselor}</p>
-                        </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">
-                            ${l.followup || 'Огноогүй'}
-                        </span>
-                    </div>
-                `;
-            });
-
-            // Dashboard Table
-            const recentTable = document.getElementById('dashboard-recent-table');
-            recentTable.innerHTML = '';
-            db.leads.slice(0, 5).forEach(l => {
-                recentTable.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition">
-                        <td class="p-4 font-bold text-slate-800">${l.name}</td>
-                        <td class="p-4">${l.phone} <span class="text-slate-400 block text-[10px]">${l.email || ''}</span></td>
-                        <td class="p-4 font-medium">${l.country}</td>
-                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700">${l.status}</span></td>
-                        <td class="p-4 font-medium">${l.counselor}</td>
-                        <td class="p-4 font-medium text-slate-500">${l.followup || '-'}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // 2. LEADS RENDER
-        function renderLeads() {
-            const search = document.getElementById('lead-search').value.toLowerCase();
-            const statusFilter = document.getElementById('filter-status').value;
-
-            const filtered = db.leads.filter(l => {
-                const matchesSearch = l.name.toLowerCase().includes(search) || l.phone.includes(search);
-                const matchesStatus = statusFilter === 'ALL' || l.status === statusFilter;
-                return matchesSearch && matchesStatus;
-            });
-
-            const tbody = document.getElementById('leads-table-body');
-            tbody.innerHTML = '';
-
-            filtered.forEach(l => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 font-bold text-slate-800">${l.name}</td>
-                        <td class="p-4">${l.phone} <div class="text-slate-400 text-[10px]">${l.email || '-'}</div></td>
-                        <td class="p-4 font-medium">${l.country} <div class="text-slate-400 text-[10px]">${l.level || ''}</div></td>
-                        <td class="p-4">
-                            <select onchange="updateLeadStatus('${l.id}', this.value)" class="text-xs font-bold rounded-lg px-2 py-1 border border-slate-200 bg-white">
-                                <option value="New" ${l.status==='New'?'selected':''}>New</option>
-                                <option value="Contacted" ${l.status==='Contacted'?'selected':''}>Contacted</option>
-                                <option value="Qualified" ${l.status==='Qualified'?'selected':''}>Qualified</option>
-                                <option value="Application Prep" ${l.status==='Application Prep'?'selected':''}>Application Prep</option>
-                                <option value="Converted" ${l.status==='Converted'?'selected':''}>Converted</option>
-                            </select>
-                        </td>
-                        <td class="p-4 font-medium">${l.counselor}</td>
-                        <td class="p-4"><span class="px-2 py-1 rounded bg-slate-100 font-semibold text-slate-600">${l.followup || '-'}</span></td>
-                        <td class="p-4 text-right space-x-2">
-                            <button onclick="editLead('${l.id}')" class="text-indigo-600 font-bold hover:underline">Засах</button>
-                            <button onclick="deleteLead('${l.id}')" class="text-rose-500 font-bold hover:underline">Устгах</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function updateLeadStatus(id, newStatus) {
-            const lead = db.leads.find(l => l.id === id);
-            if (lead) {
-                lead.status = newStatus;
-                saveDB();
-            }
-        }
-
-        function openLeadModal(lead = null) {
-            document.getElementById('form-lead').reset();
-            if (lead) {
-                document.getElementById('modal-lead-title').innerText = "Сурагчийн Мэдээлэл Засах";
-                document.getElementById('lead-id').value = lead.id;
-                document.getElementById('lead-name').value = lead.name;
-                document.getElementById('lead-email').value = lead.email || '';
-                document.getElementById('lead-phone').value = lead.phone;
-                document.getElementById('lead-country').value = lead.country;
-                document.getElementById('lead-level').value = lead.level || 'Бакалавр';
-                document.getElementById('lead-counselor').value = lead.counselor;
-                document.getElementById('lead-status').value = lead.status;
-                document.getElementById('lead-followup').value = lead.followup || '';
-            } else {
-                document.getElementById('modal-lead-title').innerText = "Шинэ Сурагч Бүртгэх";
-                document.getElementById('lead-id').value = '';
-            }
-            document.getElementById('modal-lead').classList.remove('hidden');
-        }
-
-        function saveLead(e) {
-            e.preventDefault();
-            const id = document.getElementById('lead-id').value;
-            const leadData = {
-                id: id || `L-${Date.now().toString().slice(-4)}`,
-                name: document.getElementById('lead-name').value,
-                email: document.getElementById('lead-email').value,
-                phone: document.getElementById('lead-phone').value,
-                country: document.getElementById('lead-country').value,
-                level: document.getElementById('lead-level').value,
-                counselor: document.getElementById('lead-counselor').value,
-                status: document.getElementById('lead-status').value,
-                followup: document.getElementById('lead-followup').value
+            const payload = {
+                schools: schools,
+                database: database,
+                crmLeads: crmLeads,
+                crmDeals: crmDeals,
+                crmTasks: crmTasks,
+                updatedAt: new Date().toISOString()
             };
 
-            if (id) {
-                const idx = db.leads.findIndex(l => l.id === id);
-                if (idx !== -1) db.leads[idx] = leadData;
-            } else {
-                db.leads.unshift(leadData);
+            fetch(cloudUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log("Cloud sync pushed successfully");
+            });
+        }
+
+        function openCloudModal() {
+            document.getElementById("inp-cloud-url").value = cloudUrl;
+            document.getElementById("modal-cloud").classList.remove("hidden");
+        }
+        function closeCloudModal() {
+            document.getElementById("modal-cloud").classList.add("hidden");
+        }
+
+        function saveCloudUrl() {
+            const url = document.getElementById("inp-cloud-url").value.trim();
+            if (!url) return alert("URL оруулна уу.");
+            cloudUrl = url;
+            localStorage.setItem("cealink_cloud_url", url);
+            closeCloudModal();
+            triggerCloudSave();
+            initCloudSync();
+            alert("✓ Cloud амжилттай холбогдлоо! Багийнхан энэ линкээр зэрэг ажиллах боломжтой.");
+        }
+
+        function disconnectCloud() {
+            if (confirm("Cloud холболтыг салгах уу?")) {
+                cloudUrl = "";
+                localStorage.removeItem("cealink_cloud_url");
+                document.getElementById("cloud-badge").className = "text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded font-semibold ml-2";
+                document.getElementById("cloud-badge").innerText = "Local Mode";
+                closeCloudModal();
             }
-
-            saveDB();
-            closeModal('modal-lead');
         }
 
-        function editLead(id) {
-            const lead = db.leads.find(l => l.id === id);
-            if (lead) openLeadModal(lead);
+        function switchTab(tab) {
+            ["sec-calc", "sec-all-pnl", "sec-schools", "sec-crm-full", "sec-compare", "sec-quote", "sec-db"].forEach(id => document.getElementById(id).classList.add("hidden"));
+            ["tab-calc", "tab-all-pnl", "tab-schools", "tab-crm-full", "tab-compare", "tab-quote", "tab-db"].forEach(id => document.getElementById(id).className = "px-3 py-1.5 rounded text-slate-300 hover:text-white");
+
+            document.getElementById(`sec-${tab}`).classList.remove("hidden");
+            document.getElementById(`tab-${tab}`).className = "px-3 py-1.5 rounded bg-indigo-600 text-white shadow font-bold";
+
+            if (tab === 'all-pnl') renderConsolidatedPNL();
+            if (tab === 'schools') renderSchoolsTable();
+            if (tab === 'crm-full') renderCRMAll();
+            if (tab === 'compare') renderComparisonTable();
+            if (tab === 'quote') updateQuoteView();
         }
 
-        function deleteLead(id) {
-            if (confirm("Устгахдаа итгэлтэй байна уу?")) {
-                db.leads = db.leads.filter(l => l.id !== id);
-                saveDB();
-            }
-        }
+        // Schools CRM Rendering
+        function renderSchoolsTable() {
+            const search = (document.getElementById("inp-school-search")?.value || "").toLowerCase();
+            const district = document.getElementById("sel-district-filter")?.value || "";
+            const status = document.getElementById("sel-status-filter")?.value || "";
+            const todayStr = new Date().toISOString().split('T')[0];
 
-        // 3. PARTNERS RENDER
-        function renderPartners() {
-            const grid = document.getElementById('partners-grid');
-            grid.innerHTML = '';
-            db.partners.forEach(p => {
-                grid.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-bold text-sm text-slate-800">${p.name}</h4>
-                                <span class="bg-emerald-50 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full border border-emerald-200/60">
-                                    ${p.commission}% Комисс
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-500 font-medium">Улс: ${p.country}</p>
-                        </div>
-                        <div class="pt-3 border-t flex items-center justify-between text-xs text-slate-400">
-                            <span>Зөвлөх: ${p.owner}</span>
-                            <button onclick="deletePartner('${p.id}')" class="text-rose-500 font-bold hover:underline">Устгах</button>
-                        </div>
-                    </div>
+            let filtered = schools.filter(s => {
+                const matchSearch = s.name.toLowerCase().includes(search) || 
+                                    (s.principal && s.principal.toLowerCase().includes(search)) || 
+                                    (s.email && s.email.toLowerCase().includes(search));
+                const matchDistrict = district === "" || s.district.includes(district);
+                const matchStatus = status === "" || s.status === status;
+                return matchSearch && matchDistrict && matchStatus;
+            });
+
+            filtered.sort((a, b) => (a.nextContactDate || "9999-99-99").localeCompare(b.nextContactDate || "9999-99-99"));
+            document.getElementById("lbl-schools-count").innerText = `Нийт ${filtered.length} сургууль`;
+
+            const tbody = document.getElementById("tbody-schools");
+            tbody.innerHTML = "";
+
+            filtered.forEach(s => {
+                const isOverdue = s.nextContactDate && s.nextContactDate <= todayStr && s.status !== "Хэлцэл хийгдсэн";
+                const tr = document.createElement("tr");
+                tr.className = isOverdue ? "bg-red-50/70 border-l-4 border-red-500 hover:bg-red-100/50 transition" : "hover:bg-slate-50 transition";
+                
+                tr.innerHTML = `
+                    <td class="p-2.5">
+                        <span class="font-bold text-slate-800">${s.district}</span>
+                        <span class="block text-[10px] text-slate-400">${s.type}</span>
+                    </td>
+                    <td class="p-2.5">
+                        <span class="font-black text-indigo-950">${s.name}</span>
+                        ${isOverdue ? '<span class="ml-1.5 px-1.5 py-0.5 bg-red-600 text-white rounded text-[9px] font-extrabold animate-pulse">⚠️ Залгах хугацаа</span>' : ''}
+                    </td>
+                    <td class="p-2.5 font-bold text-indigo-700">${s.program || 'Бүх хөтөлбөр'}</td>
+                    <td class="p-2.5">
+                        <span class="font-bold text-slate-900 block">${s.principal || '-'}</span>
+                        <span class="text-slate-500">${s.principalPhone || '-'}</span>
+                    </td>
+                    <td class="p-2.5">
+                        <span class="text-slate-700">${s.secName || '-'}</span>
+                        <span class="block text-slate-400">${s.secPhone || ''}</span>
+                    </td>
+                    <td class="p-2.5">
+                        <input type="date" value="${s.nextContactDate || ''}" onchange="updateSchoolDate(${s.id}, this.value)" class="border rounded px-1.5 py-0.5 text-xs font-semibold ${isOverdue ? 'border-red-400 bg-red-50 font-bold text-red-900' : ''}">
+                    </td>
+                    <td class="p-2.5">
+                        <select onchange="updateSchoolStatus(${s.id}, this.value)" class="border rounded px-1.5 py-0.5 text-xs font-bold bg-white">
+                            <option value="Мэйл илгээсэн" ${s.status === 'Мэйл илгээсэн' ? 'selected' : ''}>🟡 Мэйл илгээсэн</option>
+                            <option value="Хариу ирсэн" ${s.status === 'Хариу ирсэн' ? 'selected' : ''}>🔵 Хариу ирсэн / Уулзалт</option>
+                            <option value="Хэлцэл хийгдсэн" ${s.status === 'Хэлцэл хийгдсэн' ? 'selected' : ''}>🟢 Хэлцэл хийгдсэн</option>
+                            <option value="Хүлээгдэж буй" ${s.status === 'Хүлээгдэж буй' ? 'selected' : ''}>⚪ Хүлээгдэж буй</option>
+                        </select>
+                    </td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="openEmailModalForSchool(${s.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs font-bold inline-flex items-center gap-1 shadow">
+                            <i class="fa-solid fa-envelope-open-text"></i> Мэйл бэлдэх
+                        </button>
+                    </td>
                 `;
+                tbody.appendChild(tr);
             });
         }
 
-        function openPartnerModal() {
-            document.getElementById('form-partner').reset();
-            document.getElementById('modal-partner').classList.remove('hidden');
+        function updateSchoolDate(id, val) {
+            const s = schools.find(x => x.id === id);
+            if (s) { s.nextContactDate = val; triggerCloudSave(); renderSchoolsTable(); }
+        }
+        function updateSchoolStatus(id, val) {
+            const s = schools.find(x => x.id === id);
+            if (s) { s.status = val; triggerCloudSave(); renderSchoolsTable(); }
         }
 
-        function savePartner(e) {
-            e.preventDefault();
-            db.partners.push({
-                id: `P-${Date.now().toString().slice(-4)}`,
-                name: document.getElementById('partner-name').value,
-                country: document.getElementById('partner-country').value,
-                commission: parseFloat(document.getElementById('partner-commission').value) || 15,
-                owner: "Дөлгөөн"
-            });
-            saveDB();
-            closeModal('modal-partner');
+        function openEmailModalForSchool(id) {
+            activeMailSchool = schools.find(x => x.id === id);
+            if (!activeMailSchool) return;
+            document.getElementById("m-mail-to").value = activeMailSchool.email || activeMailSchool.principalEmail || "info@school.edu.mn";
+            document.getElementById("m-mail-tpl-select").value = "intro";
+            applyEmailTemplate();
+            document.getElementById("modal-email-templates").classList.remove("hidden");
         }
+        function closeEmailModal() { document.getElementById("modal-email-templates").classList.add("hidden"); }
 
-        function deletePartner(id) {
-            if (confirm("Сургуулийг устгах уу?")) {
-                db.partners = db.partners.filter(p => p.id !== id);
-                saveDB();
+        function applyEmailTemplate() {
+            if (!activeMailSchool) return;
+            const tpl = document.getElementById("m-mail-tpl-select").value;
+            const schName = activeMailSchool.name;
+            const principal = activeMailSchool.principal || "Захирал";
+            const prog = activeMailSchool.program || "Олон улсын хөтөлбөрүүд";
+
+            if (tpl === "intro") {
+                document.getElementById("m-mail-subject").value = `Хамтран ажиллах санал: ${schName} болон CEA Link Education`;
+                document.getElementById("m-mail-body").value = 
+`Хүндэт ${principal} танаа,\n\nТанай сургуулийн энэ хичээлийн жилийн сургалтын үйл ажиллагаанд өндөр амжилт хүсье.\n\nМанай "CEA Link Education" байгууллага нь олон улсын шилдэг сургууль, кемпүүдтэй хамтран сурагчдын манлайлал, хэлний мэдлэг болон STEM ур чадварыг хөгжүүлэх богино болон урт хугацааны хөтөлбөрүүдийг зохион байгуулдаг билээ.\n\nБид танай сургуулийн сурагчдад зориулан "${prog}" чиглэлээр албан ёсны хөнгөлөлттэй үнийн санал болон дэлгэрэнгүй танилцуулгыг хүргүүлэхэд бэлэн байна. 15 сурагч тутамд 1 удирдагч багш 100% үнэ төлбөргүй хамрагдах нөхцөлтэй болно.\n\nХүндэтгэсэн,\nCEA Link Education\nУтас: +976 7711-xxxx`;
+            } else if (tpl === "quote") {
+                document.getElementById("m-mail-subject").value = `Үнийн Санал хүргүүлэх тухай: ${schName} (${prog})`;
+                document.getElementById("m-mail-body").value = 
+`Хүндэт ${schName}-ийн удирдлагуудад,\n\nТа бүхэнд өмнө тохиролцсоны дагуу "${prog}" хөтөлбөрийн албан ёсны үнийн саналын тооцооллыг хавсарган хүргүүлж байна.\n\nҮнийн саналд сургалт, байрлах зочид буудал, 3 цагийн хоол, дотоод унаа болон албан ёсны сертификат бүрэн багтсан болно.\n\nТа бүхэн саналтай танилцан хариу ирүүлнэ үү.\n\nХүндэтгэсэн,\nCEA Link Education Борлуулалтын алба`;
+            } else if (tpl === "followup") {
+                document.getElementById("m-mail-subject").value = `Сануулга: ${schName} сургалтын хөтөлбөрийн тухай уулзалт товлох`;
+                document.getElementById("m-mail-body").value = 
+`Сайн байна уу, ${principal} танаа,\n\nБид өмнө нь танай сургуульд олон улсын сургалтын хөтөлбөрийн талаар санал хүргүүлсэн билээ.\n\nУг хөтөлбөрийн талаар дэлгэрэнгүй мэдээлэл өгөх болон сурагчдын бүртгэлийн хуваарийг баталгаажуулах зорилгоор энэ 7 хоногт тантай биечлэн эсвэл онлайнаар 15 минутын товч уулзалт хийх хүсэлтэй байна.\n\nТанд аль өдөр цаг завтай байхыг хариу мэдэгдэнэ үү.\n\nХүндэтгэсэн,\nCEA Link Education`;
             }
         }
 
-        // 4. DEALS RENDER
-        function renderDeals() {
-            const tbody = document.getElementById('deals-table-body');
-            tbody.innerHTML = '';
-            db.deals.forEach(d => {
-                const comm = (d.value * (d.rate / 100)) || 0;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 font-bold text-slate-800">${d.student}</td>
-                        <td class="p-4 font-medium text-slate-700">${d.program}</td>
-                        <td class="p-4">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${d.stage === 'Visa Granted' ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-50 text-indigo-700'}">
-                                ${d.stage}
-                            </span>
-                        </td>
-                        <td class="p-4 font-bold text-slate-800">$${d.value.toLocaleString()}</td>
-                        <td class="p-4 font-medium">${d.rate}%</td>
-                        <td class="p-4 font-bold text-emerald-600">$${comm.toLocaleString()}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="deleteDeal('${d.id}')" class="text-rose-500 font-bold hover:underline">Устгах</button>
-                        </td>
-                    </tr>
-                `;
-            });
+        function sendPreparedEmail() {
+            const to = document.getElementById("m-mail-to").value;
+            const subject = encodeURIComponent(document.getElementById("m-mail-subject").value);
+            const body = encodeURIComponent(document.getElementById("m-mail-body").value);
+            window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+            closeEmailModal();
         }
 
-        function openDealModal() {
-            document.getElementById('form-deal').reset();
-            document.getElementById('modal-deal').classList.remove('hidden');
+        function saveDatabaseManually() {
+            triggerCloudSave();
+            alert("✓ Баазын өөрчлөлт хадгалагдаж Cloud руу синк хийгдлээ!");
         }
 
-        function saveDeal(e) {
-            e.preventDefault();
-            db.deals.push({
-                id: `D-${Date.now().toString().slice(-4)}`,
-                student: document.getElementById('deal-student').value,
-                program: document.getElementById('deal-program').value,
-                value: parseFloat(document.getElementById('deal-value').value) || 0,
-                rate: parseFloat(document.getElementById('deal-rate').value) || 15,
-                stage: document.getElementById('deal-stage').value
-            });
-            saveDB();
-            closeModal('modal-deal');
+        function exportSchoolsExcel() {
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(schools), "Schools_CRM");
+            XLSX.writeFile(wb, `Schools_B2B_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
-        function deleteDeal(id) {
-            if (confirm("Хэлцлийг устгах уу?")) {
-                db.deals = db.deals.filter(d => d.id !== id);
-                saveDB();
-            }
+        // Full CRM Sub-tabs
+        function switchCRMSubTab(sub) {
+            ["sub-sec-leads", "sub-sec-deals", "sub-sec-tasks"].forEach(id => document.getElementById(id).classList.add("hidden"));
+            ["subtab-leads", "subtab-deals", "subtab-tasks"].forEach(id => document.getElementById(id).className = "px-4 py-2 text-slate-500 hover:text-slate-800");
+            document.getElementById(`sub-sec-${sub}`).classList.remove("hidden");
+            document.getElementById(`subtab-${sub}`).className = "px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 font-bold";
         }
 
-        // 5. TASKS RENDER
-        function renderTasks() {
-            const container = document.getElementById('tasks-list');
-            container.innerHTML = '';
-            const today = new Date().toISOString().slice(0, 10);
+        function renderCRMAll() {
+            document.getElementById("tbody-crm-leads").innerHTML = crmLeads.map(l => `
+                <tr><td class="p-2 font-bold">${l.id}</td><td class="p-2 font-black">${l.name}</td><td class="p-2">${l.email}<br>${l.phone}</td><td class="p-2">${l.dest}</td><td class="p-2"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold">${l.status}</span></td><td class="p-2">${l.counselor}</td><td class="p-2 text-slate-400">${l.notes||''}</td></tr>
+            `).join('');
 
-            db.tasks.forEach(t => {
-                const isDone = t.status === 'Completed';
-                const isOverdue = !isDone && t.duedate < today;
+            document.getElementById("tbody-crm-deals").innerHTML = crmDeals.map(d => `
+                <tr><td class="p-2 font-bold">${d.id}</td><td class="p-2 font-black">${d.student}</td><td class="p-2">${d.account} (${d.program})</td><td class="p-2 font-bold">$${d.tuition.toLocaleString()}</td><td class="p-2 font-black text-emerald-700 bg-emerald-50">$${Math.round(d.tuition*d.commRate).toLocaleString()} USD</td><td class="p-2">${d.stage}</td><td class="p-2">${d.owner}</td></tr>
+            `).join('');
 
-                container.innerHTML += `
-                    <div class="flex items-center justify-between p-3.5 rounded-xl border ${isDone ? 'bg-slate-50 opacity-60 border-slate-200' : isOverdue ? 'bg-rose-50 border-rose-200' : 'bg-white border-slate-200/80'}">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTask('${t.id}')" class="w-4 h-4 rounded text-indigo-600 cursor-pointer">
-                            <div>
-                                <p class="text-xs font-bold text-slate-800 ${isDone ? 'line-through' : ''}">${t.title}</p>
-                                <p class="text-[11px] text-slate-400">Зөвлөх: ${t.counselor}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-md ${isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}">
-                                📅 ${t.duedate}
-                            </span>
-                            <button onclick="deleteTask('${t.id}')" class="text-rose-500 font-bold text-xs hover:underline">Устгах</button>
-                        </div>
-                    </div>
-                `;
-            });
+            document.getElementById("tbody-crm-tasks").innerHTML = crmTasks.map(t => `
+                <tr><td class="p-2 font-bold">${t.id}</td><td class="p-2 font-bold">${t.task}</td><td class="p-2">${t.related}</td><td class="p-2 font-bold text-red-600">${t.dueDate}</td><td class="p-2 font-bold">${t.status}</td></tr>
+            `).join('');
         }
 
-        function openTaskModal() {
-            document.getElementById('form-task').reset();
-            document.getElementById('modal-task').classList.remove('hidden');
-        }
-
-        function saveTask(e) {
-            e.preventDefault();
-            db.tasks.push({
-                id: `T-${Date.now().toString().slice(-4)}`,
-                title: document.getElementById('task-title').value,
-                duedate: document.getElementById('task-duedate').value,
-                counselor: document.getElementById('task-counselor').value,
-                status: "Not Started"
-            });
-            saveDB();
-            closeModal('modal-task');
-        }
-
-        function toggleTask(id) {
-            const task = db.tasks.find(t => t.id === id);
-            if (task) {
-                task.status = task.status === 'Completed' ? 'Not Started' : 'Completed';
-                saveDB();
-            }
-        }
-
-        function deleteTask(id) {
-            db.tasks = db.tasks.filter(t => t.id !== id);
-            saveDB();
-        }
-
-        // EXCEL IMPORT / EXPORT LOGIC
-        function triggerExcelImport() {
-            document.getElementById('excel-file-input').click();
-        }
-
-        function handleExcelImport(event) {
-            const file = event.target.files[0];
+        function handleFullCRMUpload(evt) {
+            const file = evt.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-
-                // Try to read 'Leads' sheet
-                if (workbook.SheetNames.includes('Leads')) {
-                    const sheet = workbook.Sheets['Leads'];
-                    const jsonLeads = XLSX.utils.sheet_to_json(sheet);
-                    if (jsonLeads.length) {
-                        db.leads = jsonLeads.map((row, idx) => ({
-                            id: row['ID'] || `L-${100 + idx}`,
-                            name: row['Name'] || row['Нэр'] || 'Сурагч',
-                            email: row['Email'] || row['И-Мэйл'] || '',
-                            phone: row['Phone'] || row['Утас'] || '',
-                            country: row['Country'] || row['Улс'] || 'Канада',
-                            level: row['Level'] || 'Бакалавр',
-                            status: row['Status'] || 'New',
-                            counselor: row['Counselor'] || 'Дөлгөөн',
-                            followup: row['FollowUp'] || ''
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const wb = XLSX.read(data, {type: 'array'});
+                    if (wb.SheetNames.includes("Leads")) {
+                        crmLeads = XLSX.utils.sheet_to_json(wb.Sheets["Leads"]).map(r => ({
+                            id: r['Lead ID'] || "L-001",
+                            name: (r['First Name']||'') + ' ' + (r['Last Name']||''),
+                            email: r['Email'] || '', phone: r['Phone / Messenger'] || '',
+                            dest: r['Interested Destination'] || '', status: r['Lead Status'] || 'New',
+                            counselor: r['Assigned Counselor'] || 'Counselor A', notes: r['Notes'] || ''
                         }));
                     }
-                }
-                saveDB();
-                alert("Excel файл амжилттай импортлогдлоо!");
+                    triggerCloudSave();
+                    renderCRMAll();
+                    alert("✓ Excel амжилттай уншигдлаа!");
+                } catch(err) { alert("Алдаа: " + err.message); }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function exportToExcel() {
+        function exportFullCRMExcel() {
             const wb = XLSX.utils.book_new();
-
-            const leadsWS = XLSX.utils.json_to_sheet(db.leads);
-            const partnersWS = XLSX.utils.json_to_sheet(db.partners);
-            const dealsWS = XLSX.utils.json_to_sheet(db.deals);
-            const tasksWS = XLSX.utils.json_to_sheet(db.tasks);
-
-            XLSX.utils.book_append_sheet(wb, leadsWS, "Leads");
-            XLSX.utils.book_append_sheet(wb, partnersWS, "Partners");
-            XLSX.utils.book_append_sheet(wb, dealsWS, "Deals");
-            XLSX.utils.book_append_sheet(wb, tasksWS, "Tasks");
-
-            XLSX.writeFile(wb, `EduRecruit_CRM_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(crmLeads), "Leads");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(crmDeals), "Deals");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(crmTasks), "Tasks");
+            XLSX.writeFile(wb, `Agency_CRM_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
-        function exportJSONBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `CRM_Backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
+        // --- PRICING ENGINE ---
+        function populateSelectOptions() {
+            const ids = ["sel-prog", "comp-prog-1", "comp-prog-2", "comp-prog-3"];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = id.includes("comp-prog-3") ? `<option value="">-- Хоосон --</option>` : "";
+                database.forEach(p => el.innerHTML += `<option value="${p.id}">${p.id} - ${p.name}</option>`);
+            });
+            if (database.length > 1) {
+                document.getElementById("comp-prog-1").selectedIndex = 0;
+                document.getElementById("comp-prog-2").selectedIndex = 1;
+            }
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
+        function onMarkupInput(val) {
+            const prog = database.find(p => p.id === document.getElementById("sel-prog").value);
+            if (prog) { prog.customPrice = ""; prog.markup = parseFloat(val)||0; document.getElementById("inp-custom-price").value = ""; calculatePricing(); }
+        }
+        function onCustomPriceInput(val) {
+            const prog = database.find(p => p.id === document.getElementById("sel-prog").value);
+            if (prog) { prog.customPrice = val; calculatePricing(); }
         }
 
-        // STARTUP
-        window.onload = initApp;
+        function renderCustomExpensesUI() {
+            const container = document.getElementById("custom-expenses-list");
+            container.innerHTML = "";
+            customExpenses.forEach((exp, idx) => {
+                container.innerHTML += `
+                    <div class="bg-slate-50 p-1.5 rounded border space-y-1 text-xs">
+                        <div class="flex justify-between items-center"><input type="text" value="${exp.name}" onchange="updateExpenseProp(${idx}, 'name', this.value)" class="w-full bg-white border rounded px-1 font-semibold"><button onclick="removeExpense(${idx})" class="text-red-500 ml-1"><i class="fa-solid fa-trash"></i></button></div>
+                        <div class="grid grid-cols-3 gap-1">
+                            <input type="number" value="${exp.amount}" oninput="updateExpenseProp(${idx}, 'amount', parseFloat(this.value)||0)" class="border rounded px-1 font-bold">
+                            <select onchange="updateExpenseProp(${idx}, 'curr', this.value)" class="border rounded text-[10px]"><option value="MNT" ${exp.curr === 'MNT' ? 'selected' : ''}>MNT</option><option value="USD" ${exp.curr === 'USD' ? 'selected' : ''}>USD</option></select>
+                            <select onchange="updateExpenseProp(${idx}, 'type', this.value)" class="border rounded text-[9px]"><option value="fixed" ${exp.type === 'fixed' ? 'selected' : ''}>Нийт</option><option value="per_student" ${exp.type === 'per_student' ? 'selected' : ''}>Сурагч бүрт</option></select>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        function updateExpenseProp(idx, prop, val) { customExpenses[idx][prop] = val; calculatePricing(); }
+        function addCustomExpense() { customExpenses.push({ id: Date.now(), name: "Шинэ Зардал", amount: 100000, curr: "MNT", type: "fixed" }); renderCustomExpensesUI(); calculatePricing(); }
+        function removeExpense(idx) { customExpenses.splice(idx, 1); renderCustomExpensesUI(); calculatePricing(); }
+
+        function getProgCalcData(progId, overrideStudents = null) {
+            const prog = database.find(p => p.id === progId) || database[0];
+            const students = overrideStudents !== null ? overrideStudents : (parseInt(document.getElementById("inp-students")?.value) || 15);
+            const usdRate = parseFloat(document.getElementById("inp-usd")?.value) || 3620;
+            const sgdRate = parseFloat(document.getElementById("inp-sgd")?.value) || 2890;
+            const progCurr = (prog.currency || 'USD').toUpperCase();
+            const fxRate = (progCurr === 'SGD') ? sgdRate : usdRate;
+
+            let supplierNetOrig = parseFloat(prog.net15_29) || 0;
+            if (students < 15) supplierNetOrig = parseFloat(prog.net10_14) || supplierNetOrig;
+            else if (students >= 30) supplierNetOrig = parseFloat(prog.net30_plus) || supplierNetOrig;
+
+            const supplierNetMNT = supplierNetOrig * fxRate;
+            let customPerStudentMNT = 0, customTotalFixedMNT = 0;
+            customExpenses.forEach(exp => {
+                const rate = (exp.curr === 'USD') ? usdRate : 1;
+                const mntVal = exp.amount * rate;
+                if (exp.type === 'per_student') customPerStudentMNT += mntVal;
+                else customTotalFixedMNT += mntVal;
+            });
+
+            const totalBaseCostPerStudentMNT = supplierNetMNT + customPerStudentMNT;
+            let sellingPriceCurr = 0;
+            let markup = (parseFloat(prog.markup) || 10.0) / 100;
+
+            if (prog.customPrice && prog.customPrice !== "") {
+                sellingPriceCurr = parseFloat(prog.customPrice);
+                const sellingMNT = sellingPriceCurr * fxRate;
+                if (totalBaseCostPerStudentMNT > 0) {
+                    markup = (sellingMNT - totalBaseCostPerStudentMNT) / totalBaseCostPerStudentMNT;
+                    prog.markup = (markup * 100).toFixed(1);
+                }
+            } else {
+                const rawPriceMNT = totalBaseCostPerStudentMNT * (1 + markup);
+                sellingPriceCurr = Math.ceil(rawPriceMNT / fxRate);
+            }
+
+            const sellingPriceMNT = roundUp10(sellingPriceCurr * fxRate);
+            const totalRevenueMNT = sellingPriceMNT * students;
+            const totalSupplierCostMNT = supplierNetMNT * students;
+            const grossProfitMNT = roundUp10(totalRevenueMNT - totalSupplierCostMNT - (customPerStudentMNT * students));
+            const netProfitMNT = roundUp10(grossProfitMNT - customTotalFixedMNT);
+            const contrib = sellingPriceMNT - (supplierNetMNT + customPerStudentMNT);
+            const beStudents = contrib > 0 ? Math.ceil(customTotalFixedMNT / contrib) : 0;
+
+            return {
+                prog, students, progCurr, fxRate, markup, supplierNetOrig, sellingPriceCurr, sellingPriceMNT,
+                totalRevenueMNT, grossProfitMNT, netProfitMNT, beStudents,
+                grossMarginPct: totalRevenueMNT > 0 ? (grossProfitMNT / totalRevenueMNT * 100) : 0,
+                netMarginPct: totalRevenueMNT > 0 ? (netProfitMNT / totalRevenueMNT * 100) : 0
+            };
+        }
+
+        function calculatePricing() {
+            const progId = document.getElementById("sel-prog").value;
+            const students = parseInt(document.getElementById("inp-students").value) || 15;
+            const calc = getProgCalcData(progId, students);
+
+            document.getElementById("inp-markup").value = (calc.markup * 100).toFixed(1);
+            document.getElementById("inp-custom-price").value = calc.prog.customPrice || "";
+            document.getElementById("lbl-curr-symbol").innerText = calc.progCurr;
+
+            document.getElementById("banner-id").innerText = calc.prog.id;
+            document.getElementById("banner-title").innerText = calc.prog.name;
+            document.getElementById("banner-location").innerText = `${calc.prog.country} | ${calc.prog.duration || ''}`;
+            document.getElementById("banner-tier").innerText = students < 15 ? "10-14 сурагч" : (students >= 30 ? "30+ сурагч" : "15-29 сурагч");
+            document.getElementById("banner-net").innerText = `NET: $${calc.supplierNetOrig.toLocaleString()} ${calc.progCurr}`;
+
+            document.getElementById("kpi-price-curr").innerText = `$${calc.sellingPriceCurr.toLocaleString()} ${calc.progCurr}`;
+            document.getElementById("kpi-price-mnt").innerText = `${calc.sellingPriceMNT.toLocaleString()} ₮`;
+            document.getElementById("kpi-revenue").innerText = `${calc.totalRevenueMNT.toLocaleString()} ₮`;
+            document.getElementById("kpi-rev-curr").innerText = `$${(calc.sellingPriceCurr * students).toLocaleString()} ${calc.progCurr}`;
+            document.getElementById("kpi-gp").innerText = `${calc.grossProfitMNT.toLocaleString()} ₮`;
+            document.getElementById("kpi-gp-margin").innerText = `Margin: ${calc.grossMarginPct.toFixed(1)}%`;
+            document.getElementById("kpi-np").innerText = `${calc.netProfitMNT.toLocaleString()} ₮`;
+            document.getElementById("kpi-np-margin").innerText = `Margin: ${calc.netMarginPct.toFixed(1)}%`;
+            document.getElementById("kpi-be-students").innerText = `${calc.beStudents} Сурагч`;
+
+            document.getElementById("tbody-pnl").innerHTML = `
+                <tr><td class="px-4 py-2 font-bold">1. Орлого</td><td class="px-4 py-2 text-right">${calc.sellingPriceMNT.toLocaleString()} ₮</td><td class="px-4 py-2 text-right font-black">${calc.totalRevenueMNT.toLocaleString()} ₮</td><td class="px-4 py-2 text-right">100.0%</td></tr>
+                <tr class="bg-emerald-50"><td class="px-4 py-2 font-black text-emerald-900">2. Бохир Ашиг</td><td class="px-4 py-2 text-right">${roundUp10(calc.grossProfitMNT/students).toLocaleString()} ₮</td><td class="px-4 py-2 text-right font-black text-emerald-900">${calc.grossProfitMNT.toLocaleString()} ₮</td><td class="px-4 py-2 text-right font-bold text-emerald-800">${calc.grossMarginPct.toFixed(1)}%</td></tr>
+                <tr class="bg-blue-50"><td class="px-4 py-2 font-black text-blue-900">3. Цэвэр Ашиг</td><td class="px-4 py-2 text-right">${roundUp10(calc.netProfitMNT/students).toLocaleString()} ₮</td><td class="px-4 py-2 text-right font-black text-blue-700">${calc.netProfitMNT.toLocaleString()} ₮</td><td class="px-4 py-2 text-right font-bold text-blue-800">${calc.netMarginPct.toFixed(1)}%</td></tr>
+            `;
+            renderDatabaseTable();
+        }
+
+        function renderConsolidatedPNL() {
+            const tbody = document.getElementById("tbody-consolidated");
+            tbody.innerHTML = "";
+            let totStudents = 0, totRevenueMNT = 0, totNetMNT = 0;
+
+            database.forEach((p) => {
+                const isSelected = p.selected !== false;
+                const studCount = p.students || 15;
+                const calc = getProgCalcData(p.id, studCount);
+
+                if (isSelected) {
+                    totStudents += studCount;
+                    totRevenueMNT += calc.totalRevenueMNT;
+                    totNetMNT += calc.netProfitMNT;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-2 text-center"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleConsolidatedSelect('${p.id}', this.checked)"></td>
+                        <td class="p-2 font-bold">${p.id}</td>
+                        <td class="p-2 font-semibold">${p.name}</td>
+                        <td class="p-2">${p.country}</td>
+                        <td class="p-2"><input type="number" value="${studCount}" min="1" onchange="updateConsolidatedStudents('${p.id}', parseInt(this.value)||1)" class="w-14 border text-center rounded"></td>
+                        <td class="p-2">$${calc.supplierNetOrig.toLocaleString()}</td>
+                        <td class="p-2 font-bold text-amber-700">${(calc.markup*100).toFixed(1)}%</td>
+                        <td class="p-2 font-black">$${calc.sellingPriceCurr.toLocaleString()}</td>
+                        <td class="p-2 text-right">${calc.totalRevenueMNT.toLocaleString()} ₮</td>
+                        <td class="p-2 text-right font-black text-blue-700">${calc.netProfitMNT.toLocaleString()} ₮</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("tfoot-consolidated").innerHTML = `
+                <tr><td colspan="4" class="p-2 text-right">НИЙТ:</td><td class="p-2 text-center">${totStudents}</td><td colspan="3"></td><td class="p-2 text-right font-black text-indigo-950">${totRevenueMNT.toLocaleString()} ₮</td><td class="p-2 text-right font-black text-blue-700">${totNetMNT.toLocaleString()} ₮</td></tr>
+            `;
+        }
+
+        function toggleConsolidatedSelect(id, flag) {
+            const p = database.find(x => x.id === id);
+            if (p) { p.selected = flag; triggerCloudSave(); renderConsolidatedPNL(); }
+        }
+        function updateConsolidatedStudents(id, val) {
+            const p = database.find(x => x.id === id);
+            if (p) { p.students = val; triggerCloudSave(); renderConsolidatedPNL(); }
+        }
+        function selectAllConsolidated(flag) {
+            database.forEach(p => p.selected = flag);
+            triggerCloudSave();
+            renderConsolidatedPNL();
+        }
+
+        function renderComparisonTable() {
+            const p1 = document.getElementById("comp-prog-1").value;
+            const p2 = document.getElementById("comp-prog-2").value;
+            const p3 = document.getElementById("comp-prog-3")?.value;
+            const calcs = [p1, p2, p3].filter(Boolean).map(id => getProgCalcData(id));
+
+            let th = `<th class="p-2">Үзүүлэлт</th>`;
+            calcs.forEach(c => th += `<th class="p-2 text-right bg-indigo-800">${c.prog.id}</th>`);
+            document.getElementById("tr-comp-head").innerHTML = th;
+
+            const rows = [
+                { name: "NET өртөг", key: c => `$${c.supplierNetOrig.toLocaleString()} ${c.progCurr}` },
+                { name: "Зарах Үнэ", key: c => `$${c.sellingPriceCurr.toLocaleString()} ${c.progCurr}` },
+                { name: "Маржин %", key: c => `${(c.markup*100).toFixed(1)}%` },
+                { name: "Breakeven", key: c => `${c.beStudents} Сурагч` },
+                { name: "Цэвэр Ашиг (₮)", key: c => `${c.netProfitMNT.toLocaleString()} ₮` }
+            ];
+
+            let html = "";
+            rows.forEach(r => {
+                html += `<tr><td class="p-2 font-bold">${r.name}</td>`;
+                calcs.forEach(c => html += `<td class="p-2 text-right">${r.key(c)}</td>`);
+                html += `</tr>`;
+            });
+            document.getElementById("tbody-comp-data").innerHTML = html;
+        }
+
+        function updateQuoteView() {
+            const prog = database.find(p => p.id === document.getElementById("sel-prog").value) || database[0];
+            document.getElementById("q-view-client").innerText = document.getElementById("quote-client").value;
+            document.getElementById("q-view-date").innerText = document.getElementById("quote-date").value;
+            document.getElementById("q-title").innerText = prog.name;
+            document.getElementById("q-usd").innerText = document.getElementById("kpi-price-curr").innerText;
+            document.getElementById("q-mnt").innerText = document.getElementById("kpi-price-mnt").innerText;
+            document.getElementById("q-total-mnt").innerText = document.getElementById("kpi-revenue").innerText;
+        }
+
+        function resetCalculator() {
+            document.getElementById("inp-students").value = 15;
+            document.getElementById("inp-usd").value = 3620;
+            document.getElementById("inp-sgd").value = 2890;
+            calculatePricing();
+        }
+
+        function renderDatabaseTable() {
+            document.getElementById("tr-db-head").innerHTML = `
+                <th class="p-2">ID</th><th class="p-2">Нэр</th><th class="p-2">Улс</th><th class="p-2">NET(15-29)</th><th class="p-2">Маржин</th><th class="p-2">Зарах Үнэ</th>
+            `;
+            const tbody = document.getElementById("tbody-db-data");
+            tbody.innerHTML = "";
+            database.forEach(p => {
+                const calc = getProgCalcData(p.id, 15);
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-2 font-bold">${p.id}</td><td class="p-2 font-semibold">${p.name}</td><td class="p-2">${p.country}</td><td class="p-2 font-bold text-emerald-700">$${p.net15_29}</td>
+                        <td class="p-2"><input type="number" value="${p.markup || 10.0}" step="0.5" onchange="updateRowVal('${p.id}', 'markup', parseFloat(this.value))" class="w-14 border text-center rounded"> %</td>
+                        <td class="p-2 font-black">$${calc.sellingPriceCurr} ${calc.progCurr}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateRowVal(id, field, val) {
+            const p = database.find(x => x.id === id);
+            if (p) { p[field] = val; triggerCloudSave(); calculatePricing(); }
+        }
+
+        function exportDatabaseExcel() {
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(database), "Database");
+            XLSX.writeFile(wb, `Database_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
     </script>
 </body>
 </html>
